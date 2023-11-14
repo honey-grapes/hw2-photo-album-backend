@@ -8,8 +8,8 @@ from opensearchpy import OpenSearch, RequestsHttpConnection
 REGION = 'us-east-1'
 SERVICE = 'es'
 
-HOST = 'search-album-6ut2uyuvskblh5kaavysimss3i.aos.us-east-1.on.aws'
-S3_URL = 'https://hw2-intelligent-photo-album.s3.amazonaws.com/'
+HOST = 'search-album-6ut2uyuvskblh5kaavysimss3i.aos.us-east-1.on.aws' #to change to cloud formation opensearch
+S3_URL = 'https://hw2-intelligent-photo-album.s3.amazonaws.com/' #to change cloud formation S3 photo bucket
 PORT = 443
 INDEX = 'album'
 BOT_ID = 'L4DXTDFTQU'
@@ -35,11 +35,11 @@ SINGULARIZE_MAPPING = [
 def lambda_handler(event, context):
     print('enter search-photos')
     print('received event: ' + json.dumps(event))
-    
+
     labels = lex(event)
     open_search_response = open_search(labels)
     results = s3(open_search_response)
-    
+
     return {
         'statusCode': 200,
         'headers':{
@@ -50,7 +50,7 @@ def lambda_handler(event, context):
         },
         'body': json.dumps({"results":results})
     }
-    
+
 
 def lex(event):
     print("enter lex")
@@ -64,9 +64,9 @@ def lex(event):
             localeId=LOCAL_ID,
             sessionId=SESSION_ID,
             text=input_query)
-    
+
     print(f"lex_response = {lex_response}")
-    
+
     labels = []
     intent = lex_response["sessionState"]["intent"]
     if intent["name"] == "SearchIntent":
@@ -100,7 +100,7 @@ def open_search(labels):
             print(f"failed to search photo: {e}")
             raise e
     print(f"open_search response: {response}")
-        
+
     return response
 
 
@@ -121,7 +121,7 @@ def s3(open_search_response):
     for key in photos.keys():
         info = {}
         # info["url"] = S3_URL + key
-        info["url"] = s3.generate_presigned_url(ClientMethod="get_object", Params={"Bucket":"hw2-intelligent-photo-album", "Key":key}, ExpiresIn=3600) 
+        info["url"] = s3.generate_presigned_url(ClientMethod="get_object", Params={"Bucket":"hw2-intelligent-photo-album", "Key":key}, ExpiresIn=3600)
         info["labels"] = photos[key]
         photos_result.append(info)
 
@@ -143,5 +143,5 @@ def singularize(noun):
     for plural, singular in SINGULARIZE_MAPPING:
         if noun.endswith(plural):
             return noun[:-len(plural)] + singular
-        
+
     return noun
