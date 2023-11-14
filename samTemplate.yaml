@@ -2,38 +2,66 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: "AWS::Serverless-2016-10-31"
 Description: Intelligent Photo Album
 Resources:
+  # ===== IAM Role ===== #
+  AllRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument: |
+        {
+            "Statement": [{
+                "Effect": "Allow",
+                "Principal": { "Service": [ "codebuild.amazonaws.com", "codepipeline.amazonaws.com", "lambda.amazonaws.com", "s3.amazonaws.com", "es.amazonaws.com"]},
+                "Action": [ "sts:AssumeRole" ]
+            }]
+        }
+      Policies:
+        - PolicyName: all-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Resource: "*"
+                Effect: Allow
+                Action: "*"
+
+  # ===== API Gateway ===== #
+  ApiGatewayApi:
+      Type: AWS::Serverless::Api
+      Properties:
+        StageName: Prod
+        # Allows www.example.com to call these APIs
+        # SAM will automatically add AllowMethods with a list of methods for this API
+        Cors:
+          AllowMethods: "*"
+          AllowHeaders: "*"
+          AllowOrigin: "'*"
+        DefinitionBody: # Pull in an OpenApi definition from S3
+          'Fn::Transform':
+            Name: 'AWS::Include'
+            Parameters:
+              Location: s3://hw2-b1-hosting/swagger.yaml
+
+  # ===== Lambda Functions ===== #
   indexphotos:
     Type: "AWS::Serverless::Function"
     Properties:
-      CodeUri: ./
-      Description: ""
+      CodeUri: ./index-photo
+      Description: "index photos after put action in S3"
       MemorySize: 128
-      Timeout: 5
+      Timeout: 200
       Handler: lambda_function.lambda_handler
-      Runtime: python3.10
+      Runtime: python3.9
       Architectures:
         - x86_64
-      EventInvokeConfig:
-        MaximumEventAgeInSeconds: 21600
-        MaximumRetryAttempts: 2
-      EphemeralStorage:
-        Size: 512
-      # FunctionName: indexphotoslambda
       Events:
-        # S3Trigger:
-        BucketEvent1:
+        S3Trigger:
           Type: S3
           Properties:
-            # Bucket: !Ref s3backendpipeline
-            Bucket: 
-              Ref: Bucket1
-            Events: 
-              - s3:ObjectCreated:*
-      RuntimeManagementConfig:
-        UpdateRuntimeOn: Auto
-      SnapStart:
-        ApplyOn: None
+            Bucket: !Ref s3photoalbum
+            Events:
+              - s3:ObjectCreated:Put
       PackageType: Zip
+      Role: !Ref AllRole
       Policies:
         - Statement:
             - Effect: Allow
@@ -57,81 +85,21 @@ Resources:
               Action:
                 - logs:CreateLogStream
                 - logs:PutLogEvents
-              Resource:
-                - >-
-                  arn:aws:logs:us-east-1:768026748931:log-group:/aws/lambda/index-photos:*
+       Environment:
+         Variables:
+           REGION: us-east-1
 
-      
-      # Role: "arn:aws:iam::877755470769:role/admin-role-lambda"
-      
-      # Environment:
-      #   Variables:
-      #     REGION: us-east-1
-      # Layers:
-      #   - arn:aws:lambda:us-east-1:877755470769:layer:TestingWithES:4
-
-  # searchphotos:
-  #   Type: "AWS::Serverless::Function"
-  #   Properties:
-  #     FunctionName: searchphotoslambda
-  #     Handler: search-photos.lambda_handler
-  #     Runtime: python3.9
-  #     CodeUri: ./
-  #     Description: ""
-  #     MemorySize: 128
-  #     Timeout: 30
-  #     Role: "arn:aws:iam::877755470769:role/admin-role-lambda"
-  #     Events:
-  #       Api1:
-  #         Type: Api
-  #         Properties:
-  #           Path: /search
-  #           Method: GET
-  #     Environment:
-  #       Variables:
-  #         REGION: us-east-1
-  #     Layers:
-  #       - arn:aws:lambda:us-east-1:877755470769:layer:TestingWithES:4
-  Bucket1:
-    Type: AWS::S3::Bucket
-    Properties:
-      VersioningConfiguration:
-        Status: Enabled
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: AES256
-  BucketPolicy1:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: Bucket1
-      PolicyDocument:
-        Statement:
-          - Action: s3:*
-            Effect: Deny
-            Principal: '*'
-            Resource:
-              - arn:aws:s3:::Bucket1/*
-              - arn:aws:s3:::Bucket1
-            Condition:
-              Bool:
-                aws:SecureTransport: false
   searchphotos:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
+      CodeUri: ./search-photo
       Description: ''
       MemorySize: 128
-      Timeout: 3
+      Timeout: 200
       Handler: lambda_function.lambda_handler
-      Runtime: python3.10
+      Runtime: python3.9
       Architectures:
         - x86_64
-      EventInvokeConfig:
-        MaximumEventAgeInSeconds: 21600
-        MaximumRetryAttempts: 2
-      EphemeralStorage:
-        Size: 512
       Events:
         Api1:
           Type: Api
@@ -143,11 +111,8 @@ Resources:
           Properties:
             Path: /search
             Method: GET
-      RuntimeManagementConfig:
-        UpdateRuntimeOn: Auto
-      SnapStart:
-        ApplyOn: None
       PackageType: Zip
+      Role: !Ref AllRole
       Policies:
         - Statement:
             - Effect: Allow
@@ -187,24 +152,22 @@ Resources:
               Action:
                 - logs:CreateLogStream
                 - logs:PutLogEvents
-              Resource:
-                - >-
-                  arn:aws:logs:us-east-1:768026748931:log-group:/aws/lambda/search-photos:*
-  # uncomment
-  s3backendpipeline:
+
+  # ===== Photo Albums ===== #
+  s3photoalbum:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: s3backendpipeline
+      BucketName: s3photoalbum
       PublicAccessBlockConfiguration:
         BlockPublicAcls: False
         BlockPublicPolicy: False
         IgnorePublicAcls: False
         RestrictPublicBuckets: False
 
-  s3backendpipelinepolicy:
+  s3photoalbumpolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
-      Bucket: !Ref s3backendpipeline
+      Bucket: !Ref s3photoalbum
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -214,6 +177,6 @@ Resources:
             Resource: !Join
               - ''
               - - 'arn:aws:s3:::'
-                - !Ref s3backendpipeline
+                - !Ref s3photoalbum
                 - /*
             Principal: '*'

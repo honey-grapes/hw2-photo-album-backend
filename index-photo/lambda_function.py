@@ -8,7 +8,7 @@ from requests_aws4auth import AWS4Auth
 
 REGION = 'us-east-1'
 SERVICE = 'es'
-HOST = 'search-album-6ut2uyuvskblh5kaavysimss3i.aos.us-east-1.on.aws'
+HOST = 'search-album-6ut2uyuvskblh5kaavysimss3i.aos.us-east-1.on.aws' #to change to cloud formation opensearch
 PORT = 443
 INDEX = 'album'
 MAX_LABELS = 100
@@ -34,7 +34,7 @@ def s3(event):
     print(f"head_object: {head_object}")
     custom_label = head_object["Metadata"]["customlabels"]
     created_timestamp = head_object["LastModified"].strftime("%Y-%m-%dT%H:%M:%S")
-    
+
     return bucket, object_key, created_timestamp, custom_label
 
 
