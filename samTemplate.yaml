@@ -85,9 +85,6 @@ Resources:
               Action:
                 - logs:CreateLogStream
                 - logs:PutLogEvents
-       Environment:
-         Variables:
-           REGION: us-east-1
 
   searchphotos:
     Type: AWS::Serverless::Function
