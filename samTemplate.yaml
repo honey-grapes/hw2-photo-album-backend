@@ -40,7 +40,7 @@ Resources:
         S3Trigger:
           Type: S3
           Properties:
-            Bucket: !Ref s3photoalbum
+            Bucket: !Ref s3photoalbumforbigdataclass
             Events:
               - s3:ObjectCreated:Put
       PackageType: Zip
@@ -154,20 +154,20 @@ Resources:
   #            Location: s3://hw2-b1-hosting/swagger.yaml
 
   # ===== Photo Albums ===== #
-  s3photoalbum:
+  s3photoalbumforbigdataclass:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: s3photoalbum
+      BucketName: s3photoalbumforbigdataclass
       PublicAccessBlockConfiguration:
         BlockPublicAcls: False
         BlockPublicPolicy: False
         IgnorePublicAcls: False
         RestrictPublicBuckets: False
 
-  s3photoalbumpolicy:
+  s3photoalbumforbigdataclasspolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
-      Bucket: !Ref s3photoalbum
+      Bucket: !Ref s3photoalbumforbigdataclass
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -177,6 +177,6 @@ Resources:
             Resource: !Join
               - ''
               - - 'arn:aws:s3:::'
-                - !Ref s3photoalbum
+                - !Ref s3photoalbumforbigdataclass
                 - /*
             Principal: '*'
