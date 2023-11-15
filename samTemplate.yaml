@@ -45,7 +45,7 @@ Resources:
               - s3:ObjectCreated:Put
       PackageType: Zip
       #Role: arn:aws:iam::768026748931:role/service-role/index-photos-role-ux055tlz
-      Role: !Ref AllRole
+      Role: !GetAtt AllRole.Arn
       Policies:
         - Statement:
             - Effect: Allow
@@ -94,7 +94,7 @@ Resources:
             Method: GET
       PackageType: Zip
       #Role: !Ref arn:aws:iam::768026748931:role/service-role/search-photos-role-g1w85dak
-      Role: !Ref AllRole
+      Role: !GetAtt AllRole.Arn
       Policies:
         - Statement:
             - Effect: Allow
