@@ -137,7 +137,7 @@ Resources:
 
   # ===== API Gateway ===== #
   ApiGatewayApi:
-      DependsOn: searchphotos
+      #DependsOn: searchphotos
       Type: AWS::Serverless::Api
       Properties:
         StageName: Prod
