@@ -24,23 +24,6 @@ Resources:
                 Effect: Allow
                 Action: "*"
 
-  # ===== API Gateway ===== #
-  ApiGatewayApi:
-      Type: AWS::Serverless::Api
-      Properties:
-        StageName: Prod
-        # Allows www.example.com to call these APIs
-        # SAM will automatically add AllowMethods with a list of methods for this API
-        Cors:
-          AllowMethods: "*"
-          AllowHeaders: "*"
-          AllowOrigin: "'*"
-        DefinitionBody: # Pull in an OpenApi definition from S3
-          'Fn::Transform':
-            Name: 'AWS::Include'
-            Parameters:
-              Location: s3://hw2-b1-hosting/swagger.yaml
-
   # ===== Lambda Functions ===== #
   indexphotos:
     Type: "AWS::Serverless::Function"
@@ -151,6 +134,24 @@ Resources:
               Action:
                 - logs:CreateLogStream
                 - logs:PutLogEvents
+
+  # ===== API Gateway ===== #
+  ApiGatewayApi:
+      DependsOn: searchphotos
+      Type: AWS::Serverless::Api
+      Properties:
+        StageName: Prod
+        # Allows www.example.com to call these APIs
+        # SAM will automatically add AllowMethods with a list of methods for this API
+        Cors:
+          AllowMethods: "*"
+          AllowHeaders: "*"
+          AllowOrigin: "*"
+        DefinitionBody: # Pull in an OpenApi definition from S3
+          'Fn::Transform':
+            Name: 'AWS::Include'
+            Parameters:
+              Location: s3://hw2-b1-hosting/swagger.yaml
 
   # ===== Photo Albums ===== #
   s3photoalbum:
