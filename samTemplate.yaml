@@ -11,7 +11,7 @@ Resources:
         {
             "Statement": [{
                 "Effect": "Allow",
-                "Principal": { "Service": [ "codebuild.amazonaws.com", "codepipeline.amazonaws.com", "lambda.amazonaws.com", "s3.amazonaws.com", "es.amazonaws.com"]},
+                "Principal": { "Service": [ "codebuild.amazonaws.com", "codepipeline.amazonaws.com", "lambda.amazonaws.com", "s3.amazonaws.com", "es.amazonaws.com","cloudformation.amazonaws.com"]},
                 "Action": [ "sts:AssumeRole" ]
             }]
         }
