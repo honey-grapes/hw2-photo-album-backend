@@ -3,26 +3,26 @@ Transform: "AWS::Serverless-2016-10-31"
 Description: Intelligent Photo Album
 Resources:
   ## ===== IAM Role ===== #
-  #AllRole:
-  #  Type: AWS::IAM::Role
-  #  Properties:
-  #    Path: /
-  #    AssumeRolePolicyDocument: |
-  #      {
-  #          "Statement": [{
-  #              "Effect": "Allow",
-  #              "Principal": { "Service": [ "codebuild.amazonaws.com", "codepipeline.amazonaws.com", "lambda.amazonaws.com", "s3.amazonaws.com", "es.amazonaws.com","cloudformation.amazonaws.com"]},
-  #              "Action": [ "sts:AssumeRole" ]
-  #          }]
-  #      }
-  #    Policies:
-  #      - PolicyName: all-policy
-  #        PolicyDocument:
-  #          Version: 2012-10-17
-  #          Statement:
-  #            - Resource: "*"
-  #              Effect: Allow
-  #              Action: "*"
+  AllRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument: |
+        {
+            "Statement": [{
+                "Effect": "Allow",
+                "Principal": { "Service": [ "codebuild.amazonaws.com", "codepipeline.amazonaws.com", "lambda.amazonaws.com", "s3.amazonaws.com", "es.amazonaws.com","cloudformation.amazonaws.com"]},
+                "Action": [ "sts:AssumeRole" ]
+            }]
+        }
+      Policies:
+        - PolicyName: all-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Resource: "*"
+                Effect: Allow
+                Action: "*"
 
   # ===== API Gateway ===== #
   ApiGatewayApi:
@@ -61,7 +61,8 @@ Resources:
             Events:
               - s3:ObjectCreated:Put
       PackageType: Zip
-      Role: "arn:aws:iam::768026748931:role/service-role/index-photos-role-ux055tlz"
+      #Role: arn:aws:iam::768026748931:role/service-role/index-photos-role-ux055tlz
+      Role: !Ref AllRole
       Policies:
         - Statement:
             - Effect: Allow
@@ -109,7 +110,8 @@ Resources:
             Path: /search
             Method: GET
       PackageType: Zip
-      Role: !Ref "arn:aws:iam::768026748931:role/service-role/search-photos-role-g1w85dak"
+      #Role: !Ref arn:aws:iam::768026748931:role/service-role/search-photos-role-g1w85dak
+      Role: !Ref AllRole
       Policies:
         - Statement:
             - Effect: Allow
