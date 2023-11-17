@@ -8,7 +8,8 @@ from requests_aws4auth import AWS4Auth
 
 REGION = 'us-east-1'
 SERVICE = 'es'
-HOST = 'search-album-6ut2uyuvskblh5kaavysimss3i.aos.us-east-1.on.aws' #to change to cloud formation opensearch
+HOST = 'search-cfphotos-4pvrbaizticf2onzn3im6lr4cy.us-east-1.es.amazonaws.com' #to change to cloud formation opensearch
+#HOST = 'search-album-6ut2uyuvskblh5kaavysimss3i.aos.us-east-1.on.aws' #to change to cloud formation opensearch
 PORT = 443
 INDEX = 'album'
 MAX_LABELS = 100
