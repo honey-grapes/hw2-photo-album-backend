@@ -123,7 +123,7 @@ def s3(open_search_response):
     for key in photos.keys():
         info = {}
         # info["url"] = S3_URL + key
-        info["url"] = s3.generate_presigned_url(ClientMethod="get_object", Params={"Bucket":"hw2-intelligent-photo-album", "Key":key}, ExpiresIn=3600)
+        info["url"] = s3.generate_presigned_url(ClientMethod="get_object", Params={"Bucket":"s3photoalbumforbigdataclass", "Key":key}, ExpiresIn=3600)
         info["labels"] = photos[key]
         photos_result.append(info)
 
