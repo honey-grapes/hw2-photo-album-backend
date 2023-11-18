@@ -84,7 +84,7 @@ def lex(event):
 
 
 def open_search(labels):
-    print("enter open_search")
+    #print("enter open_search")
 
     open_search = OpenSearch(
         hosts=[{'host': HOST,'port': PORT}],
